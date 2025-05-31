@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Strategy OS - MVP Prototype</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+
+        body {
+
+            font-family: 'Inter', sans-serif;
+
+            background-color: #f7fafc; /* Lighter gray background */
+
+            color: #2d3748; /* Darker gray text for better contrast */
+
+        }
+
+        .step-section {
+
+            display: none;
+
+            animation: fadeIn 0.5s ease-in-out;
+
+            background-color: white;
+
+            border-radius: 0.75rem; /* Consistent rounded corners */
+
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Softer shadow */
+
+            padding: 2rem; /* More padding */
+
+            margin-bottom: 2rem;
+
+        }
+
+        .step-section.active {
+
+            display: block;
+
+        }
+
+        @keyframes fadeIn {
+
+            from { opacity: 0; transform: translateY(15px); }
+
+            to { opacity: 1; transform: translateY(0); }
+
+        }
+
+        .btn-primary {
+
+            background-color: #5a67d8; /* Indigo-blue */
+
+            color: white;
+
+            font-weight: 600; /* Bolder */
+
+            padding: 0.875rem 1.75rem; /* Slightly larger */
+
+            border-radius: 0.5rem;
+
+            transition: background-color 0.3s ease, transform 0.2s ease;
+
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+        }
+
+        .btn-primary:hover {
+
+            background-color: #4c51bf; /* Darker Indigo-blue */
+
+            transform: translateY(-2px);
+
+        }
+
+        .btn-secondary {
+
+            background-color: #e2e8f0; /* Lighter gray */
+
+            color: #4a5568; /* Mid gray */
+
+            font-weight: 500;
+
+            padding: 0.75rem 1.5rem;
+
+            border-radius: 0.5rem;
+
+            border: 1px solid #cbd5e0;
+
+            transition: background-color 0.3s ease, transform 0.2s ease;
+
+        }
+
+        .btn-secondary:hover {
+
+            background-color: #cbd5e0; /* Darker Lighter gray */
+
+            transform: translateY(-1px);
+
+        }
+
+        .card { /* Re-purposed for path options and upgrade tiers */
+
+            background-color: #ffffff;
+
+            border-radius: 0.75rem;
+
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+            padding: 1.5rem;
+
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+            border: 1px solid #e2e8f0;
+
+        }
+
+        .card:hover {
+
+            transform: translateY(-5px);
+
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+        }
+
+        .input-field, .textarea-field, .select-field {
+
+            border-radius: 0.375rem;
+
+            border: 1px solid #cbd5e0;
+
+            padding: 0.75rem 1rem;
+
+            width: 100%;
+
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+            background-color: #f7fafc; /* Light background for inputs */
+
+        }
+
+        .input-field:focus, .textarea-field:focus, .select-field:focus {
+
+            border-color: #5a67d8;
+
+            box-shadow: 0 0 0 3px rgba(90, 103, 216, 0.25);
+
+            outline: none;
+
+            background-color: white;
+
+        }
+
+        .textarea-field {
+
+            min-height: 120px;
+
+        }
+
+        .progress-bar-container {
+
+            width: 100%;
+
+            background-color: #e2e8f0;
+
+            border-radius: 0.5rem;
+
+            overflow: hidden;
+
+            margin-bottom: 2.5rem; /* More space */
+
+        }
+
+        .progress-bar {
+
+            height: 12px; /* Thicker */
+
+            background-color: #5a67d8;
+
+            width: 0%;
+
+            transition: width 0.5s ease-in-out;
+
+            border-radius: 0.5rem;
+
+        }
+
+        .custom-radio input[type="radio"], .custom-checkbox input[type="checkbox"] {
+
+            display: none;
+
+        }
+
+        .custom-radio label, .custom-checkbox label {
+
+            display: block;
+
+            padding: 1rem 1.25rem; /* More padding */
+
+            border: 1px solid #cbd5e0;
+
+            border-radius: 0.5rem;
+
+            cursor: pointer;
+
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+            margin-bottom: 0.75rem; /* More space */
+
+            font-weight: 500;
+
+        }
+
+        .custom-radio input[type="radio"]:checked + label, .custom-checkbox input[type="checkbox"]:checked + label {
+
+            background-color: #ebf4ff; /* Lighter blue */
+
+            border-color: #5a67d8;
+
+            color: #4c51bf; /* Darker blue text */
+
+        }
+
+        .custom-radio label:hover, .custom-checkbox label:hover {
+
+            background-color: #f0f2f5; /* Subtle hover */
+
+            border-color: #a0aec0;
+
+        }
+
+        .output-document {
+
+            border: 1px solid #e2e8f0;
+
+            padding: 1.5rem;
+
+            border-radius: 0.5rem;
+
+            background-color: #f9fafb; /* Very light gray for document feel */
+
+            margin-top: 1.5rem;
+
+        }
+
+        .output-document h3 {
+
+            font-size: 1.25rem;
+
+            font-weight: 600;
+
+            color: #2d3748;
+
+            margin-bottom: 1rem;
+
+            border-bottom: 2px solid #5a67d8;
+
+            padding-bottom: 0.5rem;
+
+        }
+
+         .output-document h4 {
+
+            font-size: 1.1rem;
+
+            font-weight: 600;
+
+            color: #4a5568;
+
+            margin-top: 1rem;
+
+            margin-bottom: 0.5rem;
+
+        }
+
+        .output-document p, .output-document li {
+
+            color: #4a5568;
+
+            line-height: 1.6;
+
+            margin-bottom: 0.75rem;
+
+        }
+
+        .output-document ul {
+
+            list-style-position: inside;
+
+            padding-left: 0.5rem;
+
+        }
+
+        .slide-mockup {
+
+            border: 1px dashed #a0aec0;
+
+            padding: 1rem;
+
+            margin-bottom: 1rem;
+
+            background-color: #edf2f7;
+
+            border-radius: 0.25rem;
+
+        }
+
+        .before-after-table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            margin-top: 1rem;
+
+        }
+
+        .before-after-table th, .before-after-table td {
+
+            border: 1px solid #cbd5e0;
+
+            padding: 0.75rem;
+
+            text-align: left;
+
+            vertical-align: top;
+
+        }
+
+        .before-after-table th {
+
+            background-color: #e2e8f0;
+
+            font-weight: 600;
+
+        }
+
+        .upgrade-tier {
+
+            border-top: 3px solid #5a67d8;
+
+        }
+
+    </style>
+
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8">
+
+    <div class="w-full max-w-3xl"> <section id="step-1-welcome" class="step-section active text-center">
+
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-4">
+
+                Let’s pinpoint what's holding your business back — and define the precise steps to move forward.
+
+            </h1>
+
+            <p class="text-gray-700 mb-8 text-lg">
+
+                You're likely here because you've hit a growth ceiling. You're successful, but stuck.
+
+                Answer a few focused questions, and we'll identify your most promising strategic path.
+
+                Then, choose the clarity and support you need to break through.
+
+            </p>
+
+            <button id="startStrategySprintBtn" class="btn-primary text-lg">
+
+                Start My Strategy Sprint
+
+            </button>
+
+        </section>
+
+
+
+        <section id="step-2-discovery" class="step-section">
+
+            <div class="progress-bar-container">
+
+                <div id="progressBar" class="progress-bar"></div>
+
+            </div>
+
+            <h2 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-8 text-center">First, A Bit About Your Business & Challenges</h2>
+
+            <div id="question-container">
+
+                </div>
+
+            <div class="mt-10 flex justify-between">
+
+                <button id="prevQuestionBtn" class="btn-secondary" style="display: none;">Previous</button>
+
+                <button id="nextQuestionBtn" class="btn-primary">Next</button>
+
+                <button id="seeMyPathBtn" class="btn-primary" style="display: none;">Diagnose My Path</button>
+
+            </div>
+
+        </section>
+
+
+
+        <section id="step-3-path" class="step-section">
+
+            <div class="text-center mb-10">
+
+                <h2 class="text-3xl font-bold text-gray-800 mb-3">Here’s Our Strategic Recommendation.</h2>
+
+                <p class="text-gray-700 text-lg">Based on your responses, these Strategic Sprints are most likely to deliver the clarity and leverage you need right now:</p>
+
+                <p class="text-sm text-gray-500 mt-2">(In a live version, we'd typically highlight one primary recommendation and 1-2 alternatives.)</p>
+
+            </div>
+
+            <div id="suggestedPathsContainer" class="grid md:grid-cols-2 gap-6">
+
+                </div>
+
+             <div class="mt-10 text-center">
+
+                <button id="backToDiscoveryBtn" class="btn-secondary">Revisit My Answers</button>
+
+            </div>
+
+        </section>
+
+
+
+        <section id="step-4-guided-input" class="step-section">
+
+             <h2 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-4 text-center">Guided Input: <span id="guidedInputPathName" class="text-indigo-600"></span></h2>
+
+             <p id="guidedInputDescription" class="text-gray-700 mb-6 text-center text-lg"></p>
+
+             <div id="guidedInputExamples" class="bg-gray-50 p-6 rounded-md border border-gray-200">
+
+                <h4 class="font-semibold text-gray-700 mb-3">Example Input Areas for This Track:</h4>
+
+                </div>
+
+             <p class="text-gray-600 mt-6 text-sm">
+
+                This interactive journey would involve a series of prompts, frameworks, and AI-assisted brainstorming sessions tailored to the chosen track, helping you build out the core components of your deliverable.
+
+             </p>
+
+             <div class="mt-10 flex justify-between">
+
+                <button id="backToPathsBtn" class="btn-secondary">Choose a Different Path</button>
+
+                <button id="generateOutputBtn" class="btn-primary">Generate My Output (Prototype)</button>
+
+            </div>
+
+        </section>
+
+
+
+        <section id="step-5-output" class="step-section">
+
+            <h2 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-2 text-center">Your <span id="outputPathName" class="text-indigo-600"></span> Deliverable</h2>
+
+            <p class="text-gray-600 text-center mb-6">This is a sample of the strategic output you would receive. It's designed to be sharp, actionable, and immediately valuable.</p>
+
+            <div id="outputContainer" class="output-document">
+
+                </div>
+
+            <div class="mt-10 text-center">
+
+                 <button id="proceedToUpgradeBtn" class="btn-primary">This is insightful. What's next?</button>
+
+            </div>
+
+        </section>
+
+
+
+        <section id="step-6-upgrade" class="step-section">
+
+            <h2 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-3 text-center">Want to Amplify These Results with Expert Guidance?</h2>
+
+            <p class="text-gray-700 text-lg text-center mb-8">
+
+                You've got a solid foundation. If you're looking to accelerate your progress, get expert validation, or have us co-build your next phase, consider these options. We keep these engagements focused and high-impact.
+
+            </p>
+
+            <div class="grid md:grid-cols-3 gap-6">
+
+                <div class="card upgrade-tier">
+
+                    <h3 class="text-xl font-semibold text-indigo-700 mb-2">Brand Playbook</h3>
+
+                    <p class="text-gray-600 text-sm mb-3">Full buildout of your core messaging, positioning, or go-to-market plan, reviewed and refined by our team.</p>
+
+                    <p class="text-xs text-gray-500 mb-1"><strong>Deliverable:</strong> Comprehensive playbook document.</p>
+
+                    <p class="text-xs text-gray-500 mb-3"><strong>Process:</strong> Async collaboration, founder feedback incorporated.</p>
+
+                    <div class="text-2xl font-bold text-gray-800 mb-4">$2,500+</div>
+
+                    <button class="btn-secondary w-full text-sm">Learn More (Placeholder)</button>
+
+                </div>
+
+                <div class="card upgrade-tier">
+
+                    <h3 class="text-xl font-semibold text-indigo-700 mb-2">Expert Review</h3>
+
+                    <p class="text-gray-600 text-sm mb-3">Direct, candid feedback on your strategy or creative from our founders via Loom video or detailed document markup.</p>
+
+                    <p class="text-xs text-gray-500 mb-1"><strong>Deliverable:</strong> Actionable critique and recommendations.</p>
+
+                    <p class="text-xs text-gray-500 mb-3"><strong>Process:</strong> Async expert review.</p>
+
+                    <div class="text-2xl font-bold text-gray-800 mb-4">$5,000+</div>
+
+                    <button class="btn-secondary w-full text-sm">Learn More (Placeholder)</button>
+
+                </div>
+
+                <div class="card upgrade-tier">
+
+                    <h3 class="text-xl font-semibold text-indigo-700 mb-2">Hands-On Partnership</h3>
+
+                    <p class="text-gray-600 text-sm mb-3">Full strategic and creative co-build. We work alongside you to develop and implement your story, visuals, and funnel.</p>
+
+                    <p class="text-xs text-gray-500 mb-1"><strong>Deliverable:</strong> Complete strategic assets and launch support.</p>
+
+                    <p class="text-xs text-gray-500 mb-3"><strong>Process:</strong> Intensive founder involvement, collaborative build.</p>
+
+                    <div class="text-2xl font-bold text-gray-800 mb-4">$15,000+</div>
+
+                    <button class="btn-secondary w-full text-sm">Learn More (Placeholder)</button>
+
+                </div>
+
+            </div>
+
+            <p class="text-xs text-gray-500 mt-6 text-center">Availability for Expert Review and Hands-On Partnership is limited to ensure dedicated founder attention.</p>
+
+            <div class="mt-10 text-center">
+
+                <button id="restartPrototypeBtn" class="btn-primary">Explore Other Paths / Restart</button>
+
+            </div>
+
+        </section>
+
+        
+
+        <section id="step-7-data-summary" class="step-section">
+
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Your Journey Summary (Data Capture Demo)</h2>
+
+            <div id="userDataSummaryContainer" class="bg-gray-50 p-6 rounded-md border border-gray-200 text-sm text-gray-700">
+
+                </div>
+
+            <p class="text-xs text-gray-500 mt-4 text-center">This demonstrates how key inputs and choices can be tracked for user segmentation and product refinement.</p>
+
+             <div class="mt-8 text-center">
+
+                <button id="restartFromSummaryBtn" class="btn-primary">Start Over</button>
+
+            </div>
+
+        </section>
+
+
+
+        <div id="messageModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 overflow-y-auto h-full w-full flex items-center justify-center" style="display: none; z-index: 50;">
+
+            <div class="bg-white p-8 rounded-lg shadow-xl max-w-md mx-auto">
+
+                <h3 id="modalTitle" class="text-xl font-semibold mb-4 text-gray-800">Notification</h3>
+
+                <p id="modalMessage" class="text-gray-700 mb-6"></p>
+
+                <button id="modalCloseBtn" class="btn-primary w-full">Understood</button>
+
+            </div>
+
+        </div>
+
+
+
+    </div>
+
+
+
+    <script>
+
+        // --- DOM Elements ---
+
+        const steps = document.querySelectorAll('.step-section');
+
+        const startStrategySprintBtn = document.getElementById('startStrategySprintBtn');
+
+        
+
+        const questionContainer = document.getElementById('question-container');
+
+        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+
+        const prevQuestionBtn = document.getElementById('prevQuestionBtn');
+
+        const seeMyPathBtn = document.getElementById('seeMyPathBtn');
+
+        const progressBar = document.getElementById('progressBar');
+
+        
+
+        const suggestedPathsContainer = document.getElementById('suggestedPathsContainer');
+
+        const backToDiscoveryBtn = document.getElementById('backToDiscoveryBtn');
+
+        
+
+        const guidedInputPathName = document.getElementById('guidedInputPathName');
+
+        const guidedInputDescription = document.getElementById('guidedInputDescription');
+
+        const guidedInputExamples = document.getElementById('guidedInputExamples');
+
+        const backToPathsBtn = document.getElementById('backToPathsBtn');
+
+        const generateOutputBtn = document.getElementById('generateOutputBtn');
+
+
+
+        const outputPathName = document.getElementById('outputPathName');
+
+        const outputContainer = document.getElementById('outputContainer');
+
+        const proceedToUpgradeBtn = document.getElementById('proceedToUpgradeBtn');
+
+
+
+        const restartPrototypeBtn = document.getElementById('restartPrototypeBtn');
+
+        const userDataSummaryContainer = document.getElementById('userDataSummaryContainer');
+
+        const restartFromSummaryBtn = document.getElementById('restartFromSummaryBtn');
+
+
+
+        const messageModal = document.getElementById('messageModal');
+
+        const modalTitle = document.getElementById('modalTitle');
+
+        const modalMessage = document.getElementById('modalMessage');
+
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+
+
+        // --- Application State ---
+
+        let currentStep = 1;
+
+        let currentQuestionIndex = 0;
+
+        const userAnswers = {
+
+            businessMetadata: {},
+
+            painPoints: [],
+
+            goals: {}
+
+        };
+
+        let selectedPath = null;
+
+
+
+        // --- Data Definitions ---
+
+        const discoveryQuestions = [
+
+            { id: "company_name", text: "What's the name of your business?", type: "text", placeholder: "e.g., Acme Innovations Inc.", category: "businessMetadata" },
+
+            { id: "industry", text: "What industry are you in?", type: "text", placeholder: "e.g., SaaS, E-commerce, Local Service", category: "businessMetadata" },
+
+            { id: "team_size", text: "How many people are on your team (including yourself)?", type: "select", options: ["Solo (Just Me)", "2-5 people", "6-10 people", "11-25 people", "26+ people"], category: "businessMetadata" },
+
+            { id: "current_revenue", text: "Roughly, what's your current annual revenue?", type: "select", options: ["Pre-revenue", "Under $100K", "$100K - $499K", "$500K - $1M", "$1M - $2M", "Over $2M"], category: "businessMetadata", tag: "revenue_stage" },
+
+            { 
+
+                id: "primary_pain", 
+
+                text: "Which of these best describes your most pressing challenge right now?", 
+
+                type: "radio", 
+
+                options: [
+
+                    "I'm unsure what strategic direction to take next to grow.", // Growth Strategy, Copilot
+
+                    "Our messaging feels unclear, inconsistent, or isn't connecting.", // Positioning Makeover, Clarity Deck
+
+                    "We're doing good work, but our brand doesn't reflect our quality or ambition; we look small.", // Brand-to-Strategy, Clarity Deck
+
+                    "I'm overwhelmed and need a clear, actionable plan I can execute.", // Growth Strategy
+
+                    "I need fresh ideas and an expert perspective on my current strategy." // Copilot
+
+                ],
+
+                category: "painPoints",
+
+                tag: "pain_point_primary"
+
+            },
+
+            {
+
+                id: "tried_solutions",
+
+                text: "Have you tried any of these to address your challenges? (Select all that apply)",
+
+                type: "checkbox",
+
+                options: ["Hired marketing agencies/freelancers", "Taken online courses or workshops", "Used DIY templates or software tools", "Worked with a business coach/consultant", "None of the above / Mostly DIY efforts"],
+
+                category: "businessMetadata",
+
+                tag: "past_solutions"
+
+            },
+
+            { 
+
+                id: "desired_output_style", 
+
+                text: "When you think about getting strategic help, what kind of output feels most valuable to you right now?", 
+
+                type: "radio", 
+
+                options: [
+
+                    "A concise, actionable plan (e.g., a 1-page strategy)", // Growth Strategy
+
+                    "A compelling narrative or pitch (e.g., a clear story or deck)", // Clarity Deck
+
+                    "A visual map connecting my brand, strategy, and audience", // Brand-to-Strategy
+
+                    "Sharpened messaging and positioning statements (e.g., before/after copy)", // Positioning Makeover
+
+                    "Interactive discussion and tailored recommendations (e.g., an expert chat)" // Copilot
+
+                ],
+
+                category: "goals",
+
+                tag: "preferred_output_format"
+
+            },
+
+            { id: "growth_ceiling_perception", text: "How would you describe your current growth ceiling or bottleneck?", type: "textarea", placeholder: "e.g., 'Leads have dried up', 'Can't scale beyond my own efforts', 'Market is too crowded'", category: "goals", tag: "growth_ceiling" }
+
+        ];
+
+
+
+        const strategicTracks = {
+
+            "Growth Strategy Sprint": {
+
+                description: "Get a 1-page growth plan identifying your core bottleneck and the next 3-5 critical actions to reignite growth.",
+
+                inputJourneyDescription: "We'll dive into your current performance, what's worked (and what hasn't), and your immediate growth objectives to craft a focused, actionable sprint plan.",
+
+                inputExamples: ["Reviewing your current customer acquisition channels.", "Analyzing your top 1-2 competitors.", "Defining a single, clear growth goal for the next 90 days.", "Brainstorming 3-5 high-leverage activities."],
+
+                outputGenerator: generateGrowthSprintOutput
+
+            },
+
+            "The Clarity Deck": {
+
+                description: "We'll help you build a concise 5-slide story that powerfully explains who you are, the problem you solve, your unique offer, and why people should care.",
+
+                inputJourneyDescription: "This track focuses on crystallizing your core narrative. We'll guide you through defining your audience, problem, solution, and unique value proposition, structuring it into a compelling 5-slide deck.",
+
+                inputExamples: ["Defining your ideal customer avatar in detail.", "Articulating the core problem your customer faces.", "Crafting a clear, concise value proposition.", "Identifying your key differentiators and proof points.", "Structuring your 'ask' or call to action."],
+
+                outputGenerator: generateClarityDeckOutput
+
+            },
+
+            "Brand-to-Strategy Sprint": {
+
+                description: "Connect your brand's story, values, and unique archetype to your core business strategy, audience, and offer, creating a cohesive roadmap.",
+
+                inputJourneyDescription: "We'll explore your brand's essence – its values, personality (archetype), and unique voice. Then, we'll connect this to your target audience's needs and your strategic objectives, resulting in a map that aligns brand with action.",
+
+                inputExamples: ["Exploring your core company values and beliefs.", "Identifying your brand archetype (e.g., Hero, Sage, Explorer).", "Defining your brand's tone of voice.", "Mapping your brand attributes to your ideal customer's desires.", "Aligning your brand with your GTM approach."],
+
+                outputGenerator: generateBrandStrategyOutput
+
+            },
+
+            "Positioning Makeover": {
+
+                description: "We’ll sharpen your core positioning, refine your key messaging (like your homepage headline or elevator pitch), and provide clear before/after copy with rationale.",
+
+                inputJourneyDescription: "This sprint is about achieving laser-focused messaging. We'll analyze your current positioning, identify areas for improvement, and work through exercises to craft compelling new copy that resonates with your ideal customer.",
+
+                inputExamples: ["Analyzing your current homepage headline and tagline.", "Defining your unique selling proposition (USP) with precision.", "Crafting 'before & after' examples of key marketing messages.", "Developing a concise elevator pitch.", "Ensuring your messaging aligns with your target audience's language."],
+
+                outputGenerator: generatePositioningMakeoverOutput
+
+            },
+
+            "Talk to our Strategy Copilot": {
+
+                description: "Have an intelligent, structured conversation with an AI trained on our expert frameworks. Get perspective, brainstorm solutions, and receive tailored recommendations.",
+
+                inputJourneyDescription: "Engage in a guided dialogue with our AI Strategy Copilot. You'll present your challenges and goals, and the Copilot will ask clarifying questions, offer insights based on proven frameworks, and help you explore potential solutions.",
+
+                inputExamples: ["Discussing your primary business challenge in detail.", "Exploring potential strategic options or new ideas.", "Getting feedback on a specific marketing campaign or initiative.", "Identifying blind spots or unconsidered alternatives.", "Receiving a summary of key insights and actionable next steps."],
+
+                outputGenerator: generateCopilotOutput
+
+            }
+
+        };
+
+
+
+        // --- Utility Functions ---
+
+        function showStep(stepId) {
+
+            steps.forEach(step => step.classList.remove('active'));
+
+            const nextStepElement = document.getElementById(stepId);
+
+            if (nextStepElement) {
+
+                nextStepElement.classList.add('active');
+
+                currentStepId = stepId; // Store the ID of the current step
+
+                window.scrollTo(0, 0);
+
+            } else {
+
+                console.error(`Step element with ID ${stepId} not found.`);
+
+            }
+
+        }
+
+        
+
+        function showModal(title, message) {
+
+            modalTitle.textContent = title;
+
+            modalMessage.textContent = message;
+
+            messageModal.style.display = 'flex';
+
+        }
+
+
+
+        function hideModal() {
+
+            messageModal.style.display = 'none';
+
+        }
+
+
+
+        // --- Step 2: Conversational Discovery Logic ---
+
+        function renderQuestion(index) {
+
+            questionContainer.innerHTML = '';
+
+            const question = discoveryQuestions[index];
+
+            
+
+            const questionDiv = document.createElement('div');
+
+            questionDiv.classList.add('mb-8', 'question-item'); // Increased margin
+
+            questionDiv.setAttribute('data-question-id', question.id);
+
+
+
+            const label = document.createElement('label');
+
+            label.setAttribute('for', question.id);
+
+            label.classList.add('block', 'text-lg', 'font-semibold', 'text-gray-700', 'mb-3'); // Larger, bolder label
+
+            label.textContent = question.text;
+
+            questionDiv.appendChild(label);
+
+
+
+            let savedValue;
+
+            if (question.category === "businessMetadata") {
+
+                savedValue = userAnswers.businessMetadata[question.id];
+
+            } else if (question.category === "painPoints") {
+
+                 savedValue = userAnswers.painPoints.find(p => p.id === question.id)?.value || (question.type === 'checkbox' ? [] : '');
+
+            } else if (question.category === "goals") {
+
+                savedValue = userAnswers.goals[question.id];
+
+            }
+
+
+
+
+
+            if (question.type === 'text' || question.type === 'textarea') {
+
+                const input = document.createElement(question.type === 'textarea' ? 'textarea' : 'input');
+
+                if(question.type === 'text') input.setAttribute('type', 'text');
+
+                input.setAttribute('id', question.id);
+
+                input.setAttribute('name', question.id);
+
+                input.classList.add(question.type === 'textarea' ? 'textarea-field' : 'input-field');
+
+                if (question.placeholder) input.setAttribute('placeholder', question.placeholder);
+
+                if (savedValue) input.value = savedValue;
+
+                questionDiv.appendChild(input);
+
+            } else if (question.type === 'select') {
+
+                const select = document.createElement('select');
+
+                select.setAttribute('id', question.id);
+
+                select.setAttribute('name', question.id);
+
+                select.classList.add('select-field');
+
+                
+
+                const defaultOption = document.createElement('option');
+
+                defaultOption.value = "";
+
+                defaultOption.textContent = `Please select...`;
+
+                defaultOption.disabled = true;
+
+                defaultOption.selected = !savedValue;
+
+                select.appendChild(defaultOption);
+
+
+
+                question.options.forEach(optionText => {
+
+                    const option = document.createElement('option');
+
+                    option.setAttribute('value', optionText);
+
+                    option.textContent = optionText;
+
+                    if (savedValue === optionText) option.selected = true;
+
+                    select.appendChild(option);
+
+                });
+
+                questionDiv.appendChild(select);
+
+            } else if (question.type === 'radio' || question.type === 'checkbox') {
+
+                const groupDiv = document.createElement('div');
+
+                groupDiv.classList.add(question.type === 'radio' ? 'custom-radio' : 'custom-checkbox', 'space-y-3'); // More space
+
+                question.options.forEach((optionText, i) => {
+
+                    const optionId = `${question.id}_${i}`;
+
+                    const input = document.createElement('input');
+
+                    input.setAttribute('type', question.type);
+
+                    input.setAttribute('id', optionId);
+
+                    input.setAttribute('name', question.id); // Same name for radio, unique for checkbox if needed but usually same for grouping
+
+                    input.setAttribute('value', optionText);
+
+                    
+
+                    if (question.type === 'radio' && savedValue === optionText) input.checked = true;
+
+                    if (question.type === 'checkbox' && Array.isArray(savedValue) && savedValue.includes(optionText)) input.checked = true;
+
+                    
+
+                    const optLabel = document.createElement('label');
+
+                    optLabel.setAttribute('for', optionId);
+
+                    optLabel.textContent = optionText;
+
+
+
+                    groupDiv.appendChild(input);
+
+                    groupDiv.appendChild(optLabel);
+
+                });
+
+                questionDiv.appendChild(groupDiv);
+
+            }
+
+            questionContainer.appendChild(questionDiv);
+
+            updateProgressBar();
+
+            updateNavigationButtons();
+
+        }
+
+
+
+        function saveCurrentAnswer() {
+
+            const question = discoveryQuestions[currentQuestionIndex];
+
+            let value;
+
+
+
+            if (question.type === 'radio') {
+
+                const checkedRadio = document.querySelector(`input[name="${question.id}"]:checked`);
+
+                value = checkedRadio ? checkedRadio.value : null;
+
+            } else if (question.type === 'checkbox') {
+
+                const checkedBoxes = document.querySelectorAll(`input[name="${question.id}"]:checked`);
+
+                value = Array.from(checkedBoxes).map(cb => cb.value);
+
+            } else {
+
+                const inputElement = document.getElementById(question.id);
+
+                value = inputElement ? inputElement.value.trim() : null;
+
+            }
+
+
+
+            if (question.category === "businessMetadata") {
+
+                userAnswers.businessMetadata[question.id] = value;
+
+                if (question.tag) userAnswers.businessMetadata[question.tag] = value; // Store with specific tag if present
+
+            } else if (question.category === "painPoints") {
+
+                // For painPoints, we might want to store them differently, e.g., if it's a single primary pain
+
+                if (question.id === "primary_pain") { // Example for single primary pain
+
+                    userAnswers.painPoints = [{ id: question.id, text: question.text, value: value, tag: question.tag }];
+
+                }
+
+                // Or if multiple pain points could be selected via checkboxes in the future:
+
+                // userAnswers.painPoints.push({ id: question.id, value: value });
+
+            } else if (question.category === "goals") {
+
+                userAnswers.goals[question.id] = value;
+
+                 if (question.tag) userAnswers.goals[question.tag] = value;
+
+            }
+
+        }
+
+        
+
+        function validateCurrentAnswer() {
+
+            saveCurrentAnswer(); // Save it first
+
+            const question = discoveryQuestions[currentQuestionIndex];
+
+            let answerToCheck;
+
+
+
+            if (question.category === "businessMetadata") answerToCheck = userAnswers.businessMetadata[question.id];
+
+            else if (question.category === "painPoints" && question.id === "primary_pain") answerToCheck = userAnswers.painPoints[0]?.value;
+
+            else if (question.category === "goals") answerToCheck = userAnswers.goals[question.id];
+
+            
+
+            const isValid = question.type === 'checkbox' ? (answerToCheck && answerToCheck.length > 0) : (answerToCheck && answerToCheck.trim() !== "");
+
+
+
+            if (!isValid) {
+
+                showModal("Input Required", `Please provide an answer for: "${question.text}"`);
+
+                const inputElement = document.getElementById(question.id) || document.querySelector(`input[name="${question.id}"]`);
+
+                if (inputElement) {
+
+                    inputElement.focus();
+
+                    const fieldToStyle = inputElement.classList.contains('input-field') || inputElement.classList.contains('textarea-field') || inputElement.classList.contains('select-field') ? inputElement : inputElement.closest('.custom-radio') || inputElement.closest('.custom-checkbox');
+
+                    if(fieldToStyle){
+
+                        fieldToStyle.classList.add('border-red-500', 'border-2');
+
+                        setTimeout(() => fieldToStyle.classList.remove('border-red-500', 'border-2'), 2500);
+
+                    }
+
+                }
+
+                return false;
+
+            }
+
+            return true;
+
+        }
+
+
+
+        function updateProgressBar() {
+
+            const progressPercentage = ((currentQuestionIndex + 1) / discoveryQuestions.length) * 100;
+
+            progressBar.style.width = `${progressPercentage}%`;
+
+        }
+
+
+
+        function updateNavigationButtons() {
+
+            prevQuestionBtn.style.display = currentQuestionIndex > 0 ? 'inline-block' : 'none';
+
+            nextQuestionBtn.style.display = currentQuestionIndex < discoveryQuestions.length - 1 ? 'inline-block' : 'none';
+
+            seeMyPathBtn.style.display = currentQuestionIndex === discoveryQuestions.length - 1 ? 'inline-block' : 'none';
+
+        }
+
+
+
+        // --- Step 3: Suggested Path Logic ---
+
+        function displaySuggestedPaths() {
+
+            suggestedPathsContainer.innerHTML = ''; // Clear previous
+
+            // Basic logic: Show all paths for prototype. In real app, filter based on userAnswers.
+
+            // Example: If pain is "messaging", prioritize "Positioning Makeover" and "The Clarity Deck".
+
+            
+
+            // For prototype, just show a few relevant ones or all. Let's show all.
+
+            Object.keys(strategicTracks).forEach(trackName => {
+
+                const track = strategicTracks[trackName];
+
+                const card = document.createElement('div');
+
+                card.classList.add('card', 'flex', 'flex-col', 'justify-between'); // Flex for button alignment
+
+                card.innerHTML = `
+
+                    <div>
+
+                        <h3 class="text-xl font-semibold text-indigo-700 mb-2">${trackName}</h3>
+
+                        <p class="text-gray-600 mb-4 text-sm">${track.description}</p>
+
+                    </div>
+
+                    <button class="btn-primary w-full text-sm mt-auto start-path-btn" data-path="${trackName}">Explore This Path</button>
+
+                `;
+
+                suggestedPathsContainer.appendChild(card);
+
+            });
+
+
+
+            document.querySelectorAll('.start-path-btn').forEach(button => {
+
+                button.addEventListener('click', (e) => {
+
+                    selectedPath = e.target.dataset.path;
+
+                    console.log('Selected Path:', selectedPath);
+
+                    guidedInputPathName.textContent = selectedPath;
+
+                    guidedInputDescription.textContent = strategicTracks[selectedPath].inputJourneyDescription;
+
+                    
+
+                    const examplesHtml = strategicTracks[selectedPath].inputExamples.map(ex => `<li class="text-gray-600 mb-1">${ex}</li>`).join('');
+
+                    guidedInputExamples.innerHTML = `<ul class="list-disc list-inside">${examplesHtml}</ul>`;
+
+
+
+                    showStep('step-4-guided-input');
+
+                });
+
+            });
+
+        }
+
+        
+
+        // --- Step 5: Output Generation Logic (Prototypes) ---
+
+        function generateGrowthSprintOutput() {
+
+            return `
+
+                <h3>Your 1-Page Growth Strategy Sprint</h3>
+
+                <h4>Primary Bottleneck Identified:</h4>
+
+                <p>Based on your inputs, the primary bottleneck appears to be <strong>[Simulated: Inconsistent Lead Generation from Digital Channels]</strong>. While referrals are strong, scaling requires a more predictable engine.</p>
+
+                
+
+                <h4>Strategic Goal (Next 90 Days):</h4>
+
+                <p>Increase qualified leads from [Specific Channel, e.g., LinkedIn Outreach] by <strong>[Simulated: 30%]</strong> resulting in an estimated <strong>[Simulated: 5-7]</strong> new client conversions.</p>
+
+
+
+                <h4>Key Actions (Next 7-30 Days):</h4>
+
+                <ul>
+
+                    <li><strong>Action 1 (Week 1): Refine Ideal Customer Profile for LinkedIn.</strong> Identify 50 target companies and key decision-makers. Draft 3 personalized connection request templates.</li>
+
+                    <li><strong>Action 2 (Week 1-2): Optimize LinkedIn Profile.</strong> Ensure your profile clearly communicates your value proposition to this target audience. Add relevant case studies or testimonials.</li>
+
+                    <li><strong>Action 3 (Week 2-4): Initiate Outreach Campaign.</strong> Send 20-25 personalized connection requests daily. Follow up with valuable content or insights, not a hard pitch. Track connection and response rates.</li>
+
+                    <li><strong>Action 4 (Ongoing): Content Engagement.</strong> Spend 30 mins daily engaging with relevant posts and sharing valuable insights on LinkedIn to build visibility.</li>
+
+                </ul>
+
+                <h4>Metrics to Track:</h4>
+
+                <p>Connection acceptance rate, reply rate to messages, number of discovery calls booked, lead-to-customer conversion rate.</p>
+
+                <h4>What You Know Now:</h4>
+
+                <p>You have a focused, actionable plan to address your lead generation bottleneck, moving beyond reactive measures to a proactive strategy with clear steps and measurable outcomes.</p>
+
+            `;
+
+        }
+
+
+
+        function generateClarityDeckOutput() {
+
+            return `
+
+                <h3>Your Clarity Deck Outline (5 Slides)</h3>
+
+                <p>This deck structure provides a compelling narrative to explain your value quickly and effectively.</p>
+
+                
+
+                <div class="slide-mockup">
+
+                    <h4>Slide 1: The Transformation (Your "Why" & Their "Win")</h4>
+
+                    <p><strong>Content Focus:</strong> Start with the audience's aspiration or the significant positive change you enable. Connect your core mission to their ultimate success. Hook them with the end result.</p>
+
+                </div>
+
+                <div class="slide-mockup">
+
+                    <h4>Slide 2: The Unseen Problem (The Real Challenge)</h4>
+
+                    <p><strong>Content Focus:</strong> Articulate the core problem your ideal customer faces – often one they haven't fully diagnosed themselves. Go beyond surface-level pain to the root cause you address.</p>
+
+                </div>
+
+                <div class="slide-mockup">
+
+                    <h4>Slide 3: Your Unique Solution (The "Aha!" Moment)</h4>
+
+                    <p><strong>Content Focus:</strong> Clearly present your product/service as the specific, insightful solution to that problem. Highlight what makes your approach different and uniquely effective.</p>
+
+                </div>
+
+                <div class="slide-mockup">
+
+                    <h4>Slide 4: Proof & Possibility (Why Trust You & What's Possible)</h4>
+
+                    <p><strong>Content Focus:</strong> Provide tangible evidence – case studies, testimonials, data – that your solution works. Showcase the results and transformation others have experienced.</p>
+
+                </div>
+
+                <div class="slide-mockup">
+
+                    <h4>Slide 5: The Path Forward (Your Clear Call to Action)</h4>
+
+                    <p><strong>Content Focus:</strong> Make it clear what the next step is. Whether it's booking a call, starting a trial, or making a purchase, guide them confidently to engagement.</p>
+
+                </div>
+
+                <h4>What You Know Now:</h4>
+
+                <p>You have a structured narrative that transforms your business pitch from a list of features into a compelling story of customer transformation, making your value proposition instantly understandable and memorable.</p>
+
+            `;
+
+        }
+
+
+
+        function generateBrandStrategyOutput() {
+
+            return `
+
+                <h3>Your Brand-to-Strategy Map Summary</h3>
+
+                <h4>Core Brand Archetype:</h4>
+
+                <p><strong>[Simulated: The Sage/Expert]</strong> - Your brand positions itself as a source of wisdom, knowledge, and trusted guidance. This resonates with clients seeking clarity and proven solutions.</p>
+
+                
+
+                <h4>Key Brand Values:</h4>
+
+                <p>Integrity, Insight, Empowerment, Precision.</p>
+
+
+
+                <h4>Target Audience Connection:</h4>
+
+                <p>Your ideal clients are [Simulated: experienced SMB owners who value expertise and are frustrated by generic advice]. The Sage archetype builds trust by offering deep understanding and actionable strategies, directly addressing their desire for credible solutions.</p>
+
+
+
+                <h4>Strategic Implications for Go-To-Market:</h4>
+
+                <ul>
+
+                    <li><strong>Content Marketing:</strong> Focus on thought leadership – insightful articles, webinars, case studies that demonstrate expertise.</li>
+
+                    <li><strong>Messaging:</strong> Emphasize clarity, proven frameworks, and tangible results. Use a confident, authoritative, yet accessible tone.</li>
+
+                    <li><strong>Partnerships:</strong> Collaborate with other trusted advisors or platforms that serve your target audience.</li>
+
+                </ul>
+
+                <h4>Offer Alignment:</h4>
+
+                <p>Your services (e.g., Strategic Sprints, Expert Reviews) are positioned as high-value consultations, leveraging your expertise to solve complex problems. This aligns with the Sage archetype's promise of delivering transformative insights.</p>
+
+                <h4>What You Know Now:</h4>
+
+                <p>You have a clear understanding of how your brand's core identity (archetype and values) directly informs your business strategy, ensuring a cohesive and authentic approach to your market, messaging, and offerings.</p>
+
+            `;
+
+        }
+
+
+
+        function generatePositioningMakeoverOutput() {
+
+            return `
+
+                <h3>Your Positioning Makeover Sheet</h3>
+
+                <h4>Analysis of Current Positioning:</h4>
+
+                <p>Your current messaging (based on simulated inputs) tends to be [Simulated: feature-focused and somewhat generic, e.g., "We provide business consulting services."]. While accurate, it lacks a strong emotional hook and clear differentiation.</p>
+
+                
+
+                <table class="before-after-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Element</th>
+
+                            <th>Before (Illustrative)</th>
+
+                            <th>After (Suggested)</th>
+
+                            <th>Rationale</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+
+                            <td><strong>Homepage Headline</strong></td>
+
+                            <td>"Expert Business Solutions"</td>
+
+                            <td>"Stop Guessing. Start Growing. Strategic Clarity for Ambitious SMBs."</td>
+
+                            <td>More active, benefit-driven, and targets a specific pain point (uncertainty) and audience (ambitious SMBs).</td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td><strong>Elevator Pitch (Core)</strong></td>
+
+                            <td>"We help businesses improve."</td>
+
+                            <td>"We empower SMB founders who've hit a growth plateau with actionable strategies to unlock their next level of revenue and impact."</td>
+
+                            <td>Specifies who you help, the problem you solve, the solution, and the outcome. More compelling and precise.</td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td><strong>Value Proposition Snippet</strong></td>
+
+                            <td>"Our services include strategy and planning."</td>
+
+                            <td>"Unlike generic consultants, we deliver a personalized 'Strategy Sprint' in days, giving you a clear, no-fluff action plan you can implement immediately."</td>
+
+                            <td>Highlights a key differentiator (speed, actionable plan) and contrasts with a common pain point (generic advice).</td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+                <h4>Key Messaging Pillars Going Forward:</h4>
+
+                <ul>
+
+                    <li><strong>Clarity & Action:</strong> Emphasize the shift from confusion to a clear, executable plan.</li>
+
+                    <li><strong>Expertise & Trust:</strong> Position your services as expert-guided and results-oriented.</li>
+
+                    <li><strong>Founder-Centric:</strong> Speak directly to the ambitions and challenges of SMB founders.</li>
+
+                </ul>
+
+                <h4>What You Know Now:</h4>
+
+                <p>You have concrete examples of how to transform your messaging from generic statements to compelling, customer-centric positioning that clearly articulates your unique value and resonates with your ideal clients.</p>
+
+            `;
+
+        }
+
+
+
+        function generateCopilotOutput() {
+
+            return `
+
+                <h3>Strategy Copilot Session Summary & Recommendations</h3>
+
+                <h4>Key Challenge Discussed:</h4>
+
+                <p><strong>[Simulated: Difficulty in differentiating in a crowded market for custom software development services.]</strong> You expressed concerns about competing on price and struggling to articulate unique value beyond technical skill.</p>
+
+                
+
+                <h4>Core Insights from Dialogue:</h4>
+
+                <ul>
+
+                    <li>Your team's deep expertise in [Simulated: specific niche like 'legacy system modernization for financial services'] is a significant, currently underleveraged, asset.</li>
+
+                    <li>Client testimonials highlight your ability to [Simulated: reduce project risk and deliver on complex requirements within budget], which is a major pain point for your target clients.</li>
+
+                    <li>Current marketing focuses too much on 'what' you do (software development) rather than 'why it matters' to the client (e.g., de-risking critical projects, enabling innovation).</li>
+
+                </ul>
+
+
+
+                <h4>Suggested Strategic Options to Explore:</h4>
+
+                <ol>
+
+                    <li><strong>Niche Specialization:</strong> Formally position your firm as specialists in [Simulated: 'Legacy System Modernization for Mid-Sized Financial Institutions']. Develop targeted case studies and content for this niche.</li>
+
+                    <li><strong>Value-Based Pricing Model:</strong> Instead of hourly rates, explore project-based pricing tied to the value delivered (e.g., cost savings from modernization, risk reduction). This shifts the conversation from cost to ROI.</li>
+
+                    <li><strong>Partnership Program:</strong> Identify and partner with complementary service providers (e.g., compliance consultants for finance) to offer a more holistic solution and gain referrals.</li>
+
+                </ol>
+
+                <h4>Next Questions for You to Consider:</h4>
+
+                <ul>
+
+                    <li>Which of these strategic options aligns best with your team's passion and long-term vision?</li>
+
+                    <li>What's the smallest viable step you could take this month to test one of these options?</li>
+
+                    <li>How could you gather more specific feedback from your best clients about why they truly chose you?</li>
+
+                </ul>
+
+                <h4>What You Know Now:</h4>
+
+                <p>Through a structured, AI-guided conversation, you've identified potential blind spots in your current strategy and have a set of tailored, actionable options to explore for stronger differentiation and market positioning. You also have critical questions to guide your internal decision-making.</p>
+
+            `;
+
+        }
+
+
+
+        // --- Step 7: User Data Summary ---
+
+        function displayUserData() {
+
+            userDataSummaryContainer.innerHTML = `
+
+                <h4 class="font-semibold mb-2">Business & Challenges:</h4>
+
+                <p><strong>Company Name:</strong> ${userAnswers.businessMetadata.company_name || 'N/A'}</p>
+
+                <p><strong>Industry:</strong> ${userAnswers.businessMetadata.industry || 'N/A'}</p>
+
+                <p><strong>Team Size:</strong> ${userAnswers.businessMetadata.team_size || 'N/A'}</p>
+
+                <p><strong>Revenue Stage:</strong> ${userAnswers.businessMetadata.current_revenue || 'N/A'}</p>
+
+                <p><strong>Primary Pain Point:</strong> ${userAnswers.painPoints[0]?.value || 'N/A'}</p>
+
+                <p><strong>Past Solutions Tried:</strong> ${(userAnswers.businessMetadata.tried_solutions || []).join(', ') || 'N/A'}</p>
+
+                
+
+                <h4 class="font-semibold mt-4 mb-2">Goals & Preferences:</h4>
+
+                <p><strong>Preferred Output Format:</strong> ${userAnswers.goals.desired_output_style || 'N/A'}</p>
+
+                <p><strong>Growth Ceiling Perception:</strong> ${userAnswers.goals.growth_ceiling_perception || 'N/A'}</p>
+
+                
+
+                <h4 class="font-semibold mt-4 mb-2">Strategic Path Explored:</h4>
+
+                <p><strong>Chosen Track:</strong> ${selectedPath || 'N/A'}</p>
+
+                
+
+                <h4 class="font-semibold mt-4 mb-2">Potential Tracking Tags:</h4>
+
+                <p><code>pain_point_primary: ${userAnswers.painPoints[0]?.tag ? (userAnswers.painPoints[0].value || '').toLowerCase().replace(/\s/g, '_').replace(/[^\w]/gi, '') : 'N/A'}</code></p>
+
+                <p><code>revenue_stage: ${(userAnswers.businessMetadata.current_revenue || '').toLowerCase().replace(/\s/g, '_').replace(/[^\w]/gi, '')}</code></p>
+
+                <p><code>preferred_output: ${(userAnswers.goals.desired_output_style || '').toLowerCase().replace(/\s/g, '_').replace(/[^\w]/gi, '')}</code></p>
+
+                <p><code>chosen_track: ${(selectedPath || '').toLowerCase().replace(/\s/g, '_').replace(/[^\w]/gi, '')}</code></p>
+
+            `;
+
+            showStep('step-7-data-summary');
+
+        }
+
+
+
+
+
+        // --- Event Listeners ---
+
+        startStrategySprintBtn.addEventListener('click', () => {
+
+            showStep('step-2-discovery');
+
+            currentQuestionIndex = 0;
+
+            renderQuestion(currentQuestionIndex);
+
+        });
+
+
+
+        nextQuestionBtn.addEventListener('click', () => {
+
+            if (validateCurrentAnswer()) {
+
+                if (currentQuestionIndex < discoveryQuestions.length - 1) {
+
+                    currentQuestionIndex++;
+
+                    renderQuestion(currentQuestionIndex);
+
+                }
+
+            }
+
+        });
+
+
+
+        prevQuestionBtn.addEventListener('click', () => {
+
+            saveCurrentAnswer(); 
+
+            if (currentQuestionIndex > 0) {
+
+                currentQuestionIndex--;
+
+                renderQuestion(currentQuestionIndex);
+
+            }
+
+        });
+
+
+
+        seeMyPathBtn.addEventListener('click', () => {
+
+             if (validateCurrentAnswer()) {
+
+                console.log('User Answers:', JSON.parse(JSON.stringify(userAnswers))); // Deep copy for logging
+
+                displaySuggestedPaths();
+
+                showStep('step-3-path');
+
+            }
+
+        });
+
+
+
+        backToDiscoveryBtn.addEventListener('click', () => {
+
+            showStep('step-2-discovery');
+
+            renderQuestion(currentQuestionIndex); 
+
+        });
+
+        
+
+        backToPathsBtn.addEventListener('click', () => {
+
+            showStep('step-3-path');
+
+        });
+
+
+
+        generateOutputBtn.addEventListener('click', () => {
+
+            if (selectedPath && strategicTracks[selectedPath] && strategicTracks[selectedPath].outputGenerator) {
+
+                outputPathName.textContent = selectedPath;
+
+                outputContainer.innerHTML = strategicTracks[selectedPath].outputGenerator();
+
+                showStep('step-5-output');
+
+            } else {
+
+                showModal("Error", "Could not generate output. Path or generator missing.");
+
+            }
+
+        });
+
+
+
+        proceedToUpgradeBtn.addEventListener('click', () => {
+
+            showStep('step-6-upgrade');
+
+        });
+
+        
+
+        const fullRestart = () => {
+
+            currentStep = 1;
+
+            currentQuestionIndex = 0;
+
+            Object.assign(userAnswers, { businessMetadata: {}, painPoints: [], goals: {} }); // Reset answers
+
+            selectedPath = null;
+
+            showStep('step-1-welcome');
+
+        }
+
+
+
+        restartPrototypeBtn.addEventListener('click', () => {
+
+            // Option to show summary before full restart, or just restart
+
+            displayUserData(); // Show summary then user can fully restart from there
+
+        });
+
+        restartFromSummaryBtn.addEventListener('click', fullRestart);
+
+
+
+
+
+        modalCloseBtn.addEventListener('click', hideModal);
+
+
+
+        // --- Initial Setup ---
+
+        showStep('step-1-welcome');
+
+
+
+    </script>
+
+</body>
+
+</html>
+
